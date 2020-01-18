@@ -1,3 +1,11 @@
-// 入口文件
+export { compose } from './html/compose';
+export { html as _html } from './html/html';
+export { reactive } from './reactive/reactivity';
 
-console.log("hello world!");
+import { html as _html } from './html/html';
+import { compose } from './html/compose';
+
+export const html = (strings: string[], ...arg) => compose(_html(strings, ...arg))
+
+
+

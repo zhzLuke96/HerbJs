@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        .switchBtn {
+            padding: .25rem 1rem;
+            height: 2.5rem;
+
+            color: rgba(0, 0, 0, 0.65);
+            background-color: white;
+
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            line-height: 2rem;
+            outline: none;
+
+            transition: .3s;
+
+            cursor: pointer;
+        }
+
+        .switchBtn:hover {
+            border: 1px solid #1890ff;
+            color: #1890ff;
+        }
+
+        .switchBtn.active {
+            border: 1px dashed #40a9ff;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="approot"></div>
+    <script src="./dist/index.js"></script>
+    <script>
+        const {
+            html,
+            reactive
+        } = herb;
+
+        const state = reactive({
+            count: 0
+        })
+
+        const switchBtn = ({
+            onText,
+            offText,
+            className = '',
+            init = false
+        }) => {
+            const state = reactive({
+                isOn: init
+            })
+            return html `
+                <button
+                class=${()=> className + (state.isOn ? ' active' : '') }
+                onclick=${()=> state.isOn = !state.isOn}    
+                >
+                    ${() => state.isOn ? onText : offText}
+                </button>
+            `
+        };
+
+
+        approot.appendChild(html `
+        <span>hello world!</span>
+        <div>
+            ${()=>state.count}
+            <button onclick=${()=>state.count++}>count++</button>
+            <button onclick=${()=>{
+                state.count++;
+                state.count++;
+            }}>count+=2</button>
+            <button onclick=${()=>{
+                state.count++;
+                state.count++;
+                state.count++;
+                state.count++;
+                state.count++;
+                state.count++;
+                state.count++;
+                state.count++;
+                state.count++;
+                state.count++;
+            }}>count+=10</button>
+            </div>
+            <hr />
+            ${switchBtn({
+                onText    : '开启',
+                offText   : '关闭',
+                className : 'switchBtn',
+            })}
+            ${switchBtn({
+                onText    : 'ON_',
+                offText   : 'OFF',
+                className : 'switchBtn',
+            })}
+        `);
+
+        void(0);
+    </script>
+</body>
+
+</html>

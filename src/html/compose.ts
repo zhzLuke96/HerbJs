@@ -1,11 +1,13 @@
 import { preHTML, VDom, isHTML, ValueMap, _id } from './html';
+import { effect } from '../reactive/reactivity';
+import { isDOM } from '../common';
 
 type Container = HTMLElement | DocumentFragment
 
 const _point = (i: string | null, n: string | null) => `[${n || '$$'}:${i || _id()}]`
 const pointRe = /\[(.+?):([\w-]+?)\]/g
 const pointRe2 = /\[.+?:([\w-]+?)\]/
-const pointReOneline = /^\[(.+?):([\w-]+?)\]$/g
+const pointReOneline = /^\[(.+?):([\w-]+?)\]$/
 
 export const compose = (tpl: preHTML) => {
     const {
@@ -48,6 +50,23 @@ export const compose = (tpl: preHTML) => {
     }
 }
 
+function getArrByRegFromString(re: RegExp, text: string, mapFn: (t: string) => any = (x) => x): any[] {
+    let ret = []
+    let match = null
+    let lastIndex = 0
+    while (match = re.exec(text)) {
+        ret.push(text.slice(lastIndex, match.index))
+        lastIndex = re.lastIndex
+
+        const matchValue = mapFn(match[0])
+        ret.push(matchValue)
+    }
+    if (lastIndex !== text.length) {
+        ret.push(text.slice(lastIndex))
+    }
+    return ret
+}
+
 function setValFromVmap_Attr(content: string, attrName: string, elem: HTMLElement, vmap: ValueMap) {
     if (attrName.startsWith('on')) {
         // bind event
@@ -60,25 +79,26 @@ function setValFromVmap_Attr(content: string, attrName: string, elem: HTMLElemen
         }
         return
     }
-    const geted = content.replace(pointRe, (x) => {
-        // [TODO] 写了太多string 不太好
-        const [type, key] = x.slice(1, -1).split(':')
-        const value = vmap.get(key)
-        switch (typeof value) {
-            case "function":
-                // [TODO] 这里应该触发一个依赖回收，Effect
-                return value() as string
-            case "undefined":
-                return x as string
-            case "object":
-                // [TODO] 我们可以获取对象，用来处理复杂的东西
-                // 应该处理一些特殊的attr 比如 style class 之类的都可以接收attr
-                return JSON.stringify(value)
-            default:
-                return value as string
-        }
+    effect(() => {
+        const contentArr = getArrByRegFromString(pointRe, content, (x) => {
+            const [type, key] = x.slice(1, -1).split(':')
+            const value = vmap.get(key)
+            switch (typeof value) {
+                case "function":
+                    // [TODO] 这里应该触发一个依赖回收，Effect
+                    return value() as string
+                case "undefined":
+                    return x as string
+                case "object":
+                    // [TODO] 我们可以获取对象，用来处理复杂的东西
+                    // 应该处理一些特殊的attr 比如 style class 之类的都可以接收attr
+                    return JSON.stringify(value)
+                default:
+                    return value as string
+            }
+        })
+        elem.setAttribute(attrName, contentArr.join(''))
     })
-    elem.setAttribute(attrName, geted)
 }
 /**
  * 这个函数会比较复杂，涉及了很多处理，包括我们的组件逻辑
@@ -93,45 +113,47 @@ function setValFromVmap_Text(content: string, container: Container, vmap: ValueM
     const frag = document.createDocumentFragment()
     context2Elems(content, vmap).forEach(ch => frag.appendChild(ch))
 
-    // 添加到elem的父级容器中
     // [TODO] 应该使用dom utils统一处理dom级别的操作
+
+    // 添加到elem的父级容器中
     container.appendChild(frag)
 }
 
 function context2Elems(content: string, vmap: ValueMap) {
-    let elems = []
-    const text = t => elems.push(document.createTextNode(t))
-    const text_id = content.split(pointRe2)
-    for (let i = 0; i < text_id.length; i++) {
-        const t_i = text_id[i];
-        if (i % 2 === 0) {
-            if (t_i.length === 0) {
-                continue
-            }
-            text(t_i)
-        } else {
-            const res = getValFromVmap(t_i, vmap)
-            if (isHTML(res)) {
-                elems.push(compose(res as preHTML))
-            } else {
-                text(res)
-            }
+    return getArrByRegFromString(pointRe, content, (x) => {
+        const [type, key] = x.slice(1, -1).split(':')
+        const value = vmap.get(key)
+        switch (typeof value) {
+            case 'undefined':
+                // 找不到就返回记号符
+                return x
+            default:
+                return value
         }
-    }
-    console.log(elems)
-    return elems
-}
-
-// content eg -> [xxx:123123123]
-function getValFromVmap(key: string, vmap: ValueMap) {
-    // [TODO] 还是应该改一下，还有可能找不到的时候，需要将源文本返回
-    const value = vmap.get(key)
-    switch (typeof value) {
-        case 'function':
-            return value()
-        case 'undefined':
-            return ''
-        default:
-            return value
-    }
+    }).map(x => {
+        const elem = document.createTextNode('')
+        switch (typeof x) {
+            case 'undefined':
+                break
+            case 'string':
+                elem.nodeValue = x;
+                break
+            case 'function':
+                effect(() => {
+                    elem.nodeValue = x();
+                })
+                break
+            case 'object':
+                if (isHTML(x)) {
+                    return compose(x)
+                }
+                if (isDOM(x)) {
+                    return x
+                }
+                elem.nodeValue = JSON.stringify(x)
+            default:
+                elem.nodeValue = x;
+        }
+        return elem
+    })
 }

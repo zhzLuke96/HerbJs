@@ -9,7 +9,14 @@
 > 当然也有很多相似的，响应式和vdom以及diff模块依然复用，
 > 利用新语法规范，完全改变Taco中比较中规中矩的开发流程
 
+# Usage
+```
+npm run dev:w
+```
+
 # idea
+> 简单说就是不用标记依赖的hooks
+
 ```ts
 import { reactive, html } from "@HerbJs/herb";
 import { Reactivity } from "@HerbJs/types";
@@ -82,12 +89,19 @@ render(html`
 ```
 
 # ChangeLog
-feat: finish ./src/html .
+feat: reactive vdom diff
+
+1 复用taco中的一些代码
+2 简单的examples
+3 超轻组件化
+
 
 # TODO
+- reactive 无法包装非 object 对象的问题
+  > 我的想法是对于所有非 object 对象都包到一个透明 object 中，然后返回一个通过 defineProperty api 将行为映射到现在的 proxy 上，这样来做会简单点，比如按钮的开关状态就很需要这种非 object 的响应式对象
 - 代码中未完成的部分搜索`[TODO]`关键字
 - [ ] 不要使用随机字符串做标记的模式
-- [ ] 迁移taco中的模块
+- [x] 迁移taco中的模块
 - [ ] 在Trello中创建独立板块
 - [ ] 发布npm（白嫖全球CDN）
 - [ ] 扩充文档

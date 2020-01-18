@@ -9,7 +9,7 @@ module.exports = {
         "index": './src/index.ts'
     },
     output: {
-        library: "myLibrary",
+        library: "herb",
         libraryTarget: "umd",
         filename: devMode ? '[name].js' : '[name].min.js',
         path: resolve(__dirname, 'dist')
