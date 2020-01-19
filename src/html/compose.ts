@@ -111,7 +111,15 @@ function setValFromVmap_Attr(content: string, attrName: string, elem: HTMLElemen
  */
 function setValFromVmap_Text(content: string, container: Container, vmap: ValueMap) {
     const frag = document.createDocumentFragment()
-    context2Elems(content, vmap).forEach(ch => frag.appendChild(ch))
+    context2Elems(content, vmap).forEach(ch => {
+        if (isDOM(ch)) {
+            frag.appendChild(ch)
+        } else {
+            // is dom function
+            const child = ch()
+            frag.appendChild(child)
+        }
+    })
 
     // [TODO] 应该使用dom utils统一处理dom级别的操作
 
@@ -131,7 +139,7 @@ function context2Elems(content: string, vmap: ValueMap) {
                 return value
         }
     }).map(x => {
-        const elem = document.createTextNode('')
+        let elem = document.createTextNode('')
         switch (typeof x) {
             case 'undefined':
                 break
@@ -139,9 +147,17 @@ function context2Elems(content: string, vmap: ValueMap) {
                 elem.nodeValue = x;
                 break
             case 'function':
-                effect(() => {
-                    elem.nodeValue = x();
-                })
+                const res = x();
+                // [TODO] 处理 生成dom 的function
+                // 切换 dom 的情况需要patch
+                if (isDOM(res)) {
+                    return res
+                } else {
+                    effect(() => {
+                        const res = x();
+                        elem.nodeValue = res;
+                    })
+                }
                 break
             case 'object':
                 if (isHTML(x)) {

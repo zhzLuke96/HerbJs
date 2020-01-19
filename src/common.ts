@@ -91,3 +91,6 @@ const protoToString = Object.prototype.toString;
 export function isType(type: string): (o: any) => boolean {
     return (o: any): boolean => protoToString.call(o) === type;
 }
+
+const UniqueIdTemplate = 'xxxxxxxx-xxxx'
+export const UniqueId = () => UniqueIdTemplate.replace(/[xy]/g, c => (Math.random() * 16 | 0).toString(16));

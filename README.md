@@ -89,11 +89,10 @@ render(html`
 ```
 
 # ChangeLog
-feat: reactive vdom diff
+feat: 新例子和新功能
 
-1 复用taco中的一些代码
-2 简单的examples
-3 超轻组件化
+1 card 组件
+2 组件组合
 
 
 # TODO

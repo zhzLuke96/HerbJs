@@ -1,6 +1,6 @@
 export { compose } from './html/compose';
 export { html as _html } from './html/html';
-export { reactive } from './reactive/reactivity';
+export { reactive, state } from './reactive/reactivity';
 
 import { html as _html } from './html/html';
 import { compose } from './html/compose';
