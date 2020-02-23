@@ -1,6 +1,7 @@
 import { preHTML, VDom, isHTML, ValueMap, _id } from './html';
 import { effect } from '../reactive/reactivity';
-import { isDOM } from '../common';
+import { isDOM, UniqueId } from '../common';
+import { NewFrag } from './frag';
 
 type Container = HTMLElement | DocumentFragment
 
@@ -9,14 +10,28 @@ const pointRe = /\[(.+?):([\w-]+?)\]/g
 const pointRe2 = /\[.+?:([\w-]+?)\]/
 const pointReOneline = /^\[(.+?):([\w-]+?)\]$/
 
+const subComposeQue: (() => void)[] = []
+
+function runQue() {
+    let fn = subComposeQue.pop()
+    while (fn) {
+        fn()
+        fn = subComposeQue.pop()
+    }
+}
+
 export const compose = (tpl: preHTML) => {
     const {
         vdom,
         vmap
     } = tpl
-    const frag = document.createDocumentFragment()
-    walkChild(vdom, frag)
-    return frag
+
+    return () => {
+        const frag = document.createDocumentFragment()
+        walkChild(vdom, frag)
+        runQue()
+        return frag
+    }
 
     function walkChild(vdom: VDom, container: Container) {
         for (const child of vdom.child) {
@@ -29,15 +44,17 @@ export const compose = (tpl: preHTML) => {
                     continue
                 case 1: // elem
                     elem = document.createElement(child.tag)
-                    if (child.child.length !== 0) {
-                        walkChild(child, elem)
-                    }
                     for (const attr of child.attrs) {
                         const {
                             key,
                             val
                         } = attr
                         setValFromVmap_Attr(val, key, elem, vmap)
+                    }
+                    if (child.child.length !== 0) {
+                        subComposeQue.push(() => {
+                            walkChild(child, elem)
+                        })
                     }
                     break
                 case 7: // comment
@@ -85,7 +102,6 @@ function setValFromVmap_Attr(content: string, attrName: string, elem: HTMLElemen
             const value = vmap.get(key)
             switch (typeof value) {
                 case "function":
-                    // [TODO] 这里应该触发一个依赖回收，Effect
                     return value() as string
                 case "undefined":
                     return x as string
@@ -111,13 +127,15 @@ function setValFromVmap_Attr(content: string, attrName: string, elem: HTMLElemen
  */
 function setValFromVmap_Text(content: string, container: Container, vmap: ValueMap) {
     const frag = document.createDocumentFragment()
-    context2Elems(content, vmap).forEach(ch => {
+    context2Elems(content, vmap, container).forEach((ch) => {
+        if (ch === null) {
+            return
+        }
         if (isDOM(ch)) {
             frag.appendChild(ch)
         } else {
             // is dom function
-            const child = ch()
-            frag.appendChild(child)
+            frag.appendChild(ch())
         }
     })
 
@@ -127,7 +145,39 @@ function setValFromVmap_Text(content: string, container: Container, vmap: ValueM
     container.appendChild(frag)
 }
 
-function context2Elems(content: string, vmap: ValueMap) {
+function replaceFragChildByDataID(id: string, newChild: DocumentFragment, container: Container) {
+
+    const topContainer = ((c: any) => {
+        while (c.lastContainer) {
+            c = c.lastContainer
+        }
+        return c as Container
+    })(container)
+
+    const oldChild = Array.from(topContainer.childNodes).filter((node: HTMLElement) => !node.getAttribute ? false : node.getAttribute('data-id') === id)
+
+    Array.from(topContainer.querySelectorAll(`[data-id="${id}"]`))
+
+    Array.from(newChild.childNodes).map((node: HTMLElement) => {
+        node.setAttribute && node.setAttribute('data-id', id)
+    })
+
+
+    if (!oldChild[0]) {
+        topContainer.appendChild(newChild)
+    } else {
+        topContainer.insertBefore(newChild, oldChild[0]);
+    }
+
+    (newChild as any).lastContainer = container;
+
+    oldChild.forEach((node: HTMLElement) => {
+        node.parentNode.removeChild(node)
+    })
+
+}
+
+function context2Elems(content: string, vmap: ValueMap, container: Container) {
     return getArrByRegFromString(pointRe, content, (x) => {
         const [type, key] = x.slice(1, -1).split(':')
         const value = vmap.get(key)
@@ -147,11 +197,28 @@ function context2Elems(content: string, vmap: ValueMap) {
                 elem.nodeValue = x;
                 break
             case 'function':
-                const res = x();
+                let res = x();
                 // [TODO] 处理 生成dom 的function
                 // 切换 dom 的情况需要patch
                 if (isDOM(res)) {
                     return res
+                } else if (typeof res === 'function') {
+
+                    // const dataID = UniqueId()
+                    // effect(() => {
+                    //     const child = res()
+                    //     replaceFragChildByDataID(dataID, child, container)
+                    // })
+
+                    const frag = NewFrag(container as HTMLElement)
+
+                    subComposeQue.push(() => {
+                        effect(() => {
+                            frag.replace(res())
+                        })
+                    })
+
+                    return null
                 } else {
                     effect(() => {
                         const res = x();
@@ -172,4 +239,24 @@ function context2Elems(content: string, vmap: ValueMap) {
         }
         return elem
     })
+}
+
+
+// [TODO] 只能标记带有attr的节点
+function getFragDataID(frag: DocumentFragment): [DocumentFragment, string] {
+    let dataID = ''
+
+    frag.childNodes.forEach((child: HTMLElement) => {
+        if (!child.getAttribute) return
+        dataID = child.getAttribute('data-id')
+    })
+
+    if (!dataID) {
+        dataID = UniqueId()
+        frag.childNodes.forEach((child: HTMLElement) => {
+            child.setAttribute && child.setAttribute('data-id', dataID)
+        })
+    }
+
+    return [frag, dataID]
 }

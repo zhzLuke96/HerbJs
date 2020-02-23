@@ -1,3 +1,4 @@
+import { StateType } from "./hox/useState";
 
 export const __DEV__ = false;
 export const __IE__DEV__ = false;
@@ -79,6 +80,26 @@ export function isUnDef(obj: any): boolean {
     return obj === undefined || obj === null;
 }
 
+export function isDefAll(arr: any, ...arg: any[]): boolean {
+    if (!Array.isArray(arr)) {
+        arr = [arr]
+    }
+    if (Array.isArray(arg)) {
+        arr = arr.concat(arg)
+    }
+    return arr.length ? arr.reduce((r, o) => r && isDef(o), true) : false
+}
+
+export function isUnDefAll(arr: any, ...arg: any[]): boolean {
+    if (!Array.isArray(arr)) {
+        arr = [arr]
+    }
+    if (Array.isArray(arg)) {
+        arr = arr.concat(arg)
+    }
+    return arr.length ? arr.reduce((r, o) => r && isUnDef(o), true) : false
+}
+
 const ua = navigator.userAgent;
 const isIE = ua.indexOf("compatible") > -1 && ua.indexOf("MSIE") > -1;
 export const isEdge = ua.indexOf("Edge") > -1 && !isIE;
@@ -94,3 +115,56 @@ export function isType(type: string): (o: any) => boolean {
 
 const UniqueIdTemplate = 'xxxxxxxx-xxxx'
 export const UniqueId = () => UniqueIdTemplate.replace(/[xy]/g, c => (Math.random() * 16 | 0).toString(16));
+
+const IncludedCache = new Map<string, boolean>();
+
+export const isIncluded = (name: string) => {
+    if (IncludedCache.has(name)) {
+        return true
+    }
+    const js = /js$/i.test(name);
+    const es = document.getElementsByTagName(js ? 'script' : 'link');
+    for (var i = 0; i < es.length; i++) {
+        if (es[i][js ? 'src' : 'href'].indexOf(name) != -1) {
+            IncludedCache.set(name, true);
+            return true
+        }
+    }
+    return false;
+}
+
+export function flatten(arr: any[]) {
+    return arr.reduce((prev, cur) => {
+        return prev.concat(Array.isArray(cur) ? flatten(cur) : cur)
+    }, [])
+}
+
+
+// 逻辑是没问题，但是为了应付类型检查，很不优雅...
+export function GetValue<T>(x: T | StateType<T>): T {
+    if (typeof x !== 'object') {
+        return x
+    }
+    x = x as StateType<T>
+    if (isDefAll([x.value, x.val, x.v]) && x.value === x.val && x.value === x.v) {
+        return x.value
+    } else {
+        return x as unknown as T
+    }
+}
+
+type func = (...arg: any[]) => any
+export const FuncType = (fn: func): string => fn ? fn.constructor.name : ''
+export const isAsyncFunction = (f: func) => FuncType(f) === 'AsyncFunction'
+export const isGeneratorFunction = (f: func) => FuncType(f) === 'GeneratorFunction'
+export const isAsyncGeneratorFunction = (f: func) => FuncType(f) === 'AsyncGeneratorFunction'
+
+export const excludeKeysObj = (obj: object, keys: string[]) => {
+    const ret = {};
+    Object.keys(obj)
+        .filter(key => !keys.includes(key))
+        .forEach(key => ret[key] = obj[key])
+    return ret
+}
+
+export const includeKeysObj = (obj: object, keys: string[]) => excludeKeysObj(obj, Object.keys(obj).filter(key => !keys.includes(key)))

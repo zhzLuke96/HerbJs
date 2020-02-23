@@ -146,34 +146,3 @@ export function computed(fn: () => any, options: object = {}) {
     return reactive(ret);
     // return ret
 }
-
-export function state(initValue: string | number | boolean) {
-    const ret = Object.create(null);
-    let value = initValue
-    function set(val) {
-        // if (value === val) return
-        // 这层不能脏检查！
-        value = val
-    }
-    function get() {
-        return value
-    }
-    Object.defineProperties(ret, {
-        value: {
-            enumerable: true,
-            set,
-            get
-        },
-        val: {
-            enumerable: true,
-            set,
-            get
-        },
-        v: {
-            enumerable: true,
-            set,
-            get
-        }
-    })
-    return reactive(ret)
-}

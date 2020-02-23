@@ -19,7 +19,7 @@ type exHtml = string | HTMLfn | number
 
 type HTMLfn = (...args: any[]) => preHTML | string | number | Node
 
-export type ValueMap = Map<string, exHtml>
+export type ValueMap = Map<string, any>
 
 export interface preHTML {
     vmap: ValueMap
@@ -32,7 +32,7 @@ export interface preHTML {
 // 理论上说，我们可以解析一下，做个索引来标记来自哪里
 // 这么写相对简单点...
 // [TODO]
-export const _id = () => 'xxxxxxxx-xxxx'.replace(/[xy]/g, c => {
+export const _id = () => (~~(Math.random() * 6 + 10)).toString(16) + 'xxxxxxxx'.replace(/[xy]/g, c => {
     var r = Math.random() * 16 | 0,
         v = c == 'x' ? r : (r & 0x3 | 0x8);
     return v.toString(16);
@@ -68,7 +68,7 @@ const parseHTML = (html: string) => {
             tag: $elem.nodeName.toLowerCase(),
             type: $elem.nodeType,
             attrs: !$elem.attributes ? [] : Array.from($elem.attributes).map($a => ({
-                key: ($a.name || $a.nodeName).toLowerCase(),
+                key: $a.name || $a.nodeName,
                 type: $a.nodeType,
                 val: $a.value || $a.nodeValue || $a.textContent,
             })),
@@ -84,25 +84,35 @@ export const html = (strings: string[], ...values: any[]): preHTML => {
     let preHTML = ''
     const valMap = new Map() as ValueMap
     for (const t of tokens) {
+        const id = _id()
         switch (typeof t) {
             case "string":
                 preHTML += t
                 break
             case "function":
-                const fid = _id()
-                valMap.set(fid, t)
-                preHTML += _point(fid, 'text')
+                valMap.set(id, t)
+                preHTML += _point(id, 'text')
                 break
             case "object":
                 if (isDOM(t)) {
-                    const fid = _id()
-                    valMap.set(fid, t)
-                    preHTML += _point(fid, 'text')
+                    valMap.set(id, t)
+                    preHTML += _point(id, 'text')
                     break
                 }
-                const aid = _id()
-                valMap.set(aid, t.val)
-                preHTML += ` ${t.key}=${_point(aid, 'attr')}`
+                if (Object.hasOwnProperty.call(t, 'val') && Object.hasOwnProperty.call(t, 'key')) {
+                    valMap.set(id, t.val)
+                    preHTML += ` ${t.key}=${_point(id, 'attr')} `
+                    break
+                }
+                if (Array.isArray(t)) {
+                    valMap.set(id, t)
+                    preHTML += _point(id, 'arr')
+                    break
+                }
+                // 对象，比如attr把上层的属性向下传递的时候
+                // 如果是内容里的话，会直接渲染成文本节点
+                valMap.set(id, t)
+                preHTML += ` ${id}=${_point(id, 'obj')} `
                 break
         }
     }

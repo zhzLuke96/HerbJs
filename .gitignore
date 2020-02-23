@@ -105,3 +105,6 @@ dist
 
 # npm lock file
 package-lock.json
+
+# ignore file
+*_ignore/

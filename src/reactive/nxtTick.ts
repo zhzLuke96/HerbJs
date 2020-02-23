@@ -10,13 +10,14 @@ declare global {
     }
 }
 
+let nxtCall;
+if (p) {
+    nxtCall = (cb: () => any) => p.then(() => cb());
+} else {
+    nxtCall = (cb: () => any) => (window.setImmediate || window.setTimeout)((_) => cb(), 0);
+}
+
 export const nextTick = (() => {
-    let nxtCall;
-    if (p) {
-        nxtCall = (cb: () => any) => p.then(() => cb());
-    } else {
-        nxtCall = (cb: () => any) => (window.setImmediate || window.setTimeout)((_) => cb(), 0);
-    }
     return (cb: () => any): Promise<any> => {
         if (waiting.has(cb)) {
             return;
@@ -27,3 +28,19 @@ export const nextTick = (() => {
             .then(() => waiting.delete(cb));
     };
 })();
+
+const waittingKeyCall = new WeakMap<any>()
+
+const callWaiting = (key: any) => {
+    nxtCall(() => {
+        waittingKeyCall.get(key)()
+        waittingKeyCall.delete(key)
+    })
+}
+
+export const nextTickWithKey = (key: any, cb: () => void) => {
+    if (!waittingKeyCall.has(key)) {
+        nxtCall(() => callWaiting(key))
+    }
+    waittingKeyCall.set(key, cb)
+}
