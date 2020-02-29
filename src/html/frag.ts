@@ -1,36 +1,30 @@
-import { UniqueId, isDef, isUnDef } from "../common"
-import { Container } from "../vdom/container";
-import { patchChildren, childType } from "../vdom/vdom";
-import { Dom2Vnode } from "../vdom/any2v";
-
+import { flatten, isDef, isUnDef, UniqueId } from '../common';
+import { patch, patchChildren } from '../diff/index';
 
 interface RenderFrag {
-    __id: string
-    replace: (frag: DocumentFragment) => void
-    clear: () => void
-    hide: () => void
-    isEmpty: () => boolean
-    nodes: () => HTMLElement[]
-    node: (idx: number) => HTMLElement
-    append: (elem: HTMLElement) => void
-    has: (elem: HTMLElement) => boolean
-    currentContainer: () => Node | ParentNode
-    removeChild: (elem: HTMLElement) => void
-    replaceChild: (newChild: Node, oldChild: Node) => void
-    insertBefore: (newChild: Node, refChild: Node) => void
+    __id: string;
+    replace: (frag: DocumentFragment) => void;
+    isEmpty: () => boolean;
+    nodes: () => HTMLElement[];
+    node: (idx: number) => HTMLElement;
+    append: (elem: HTMLElement) => void;
+    has: (elem: HTMLElement) => boolean;
+    currentContainer: () => Node | ParentNode;
+    removeChild: (elem: HTMLElement) => void;
+    replaceChild: (newChild: Node, oldChild: Node) => void;
+    insertBefore: (newChild: Node, refChild: Node) => void;
 }
 
-
-class VFragContainer implements Container {
-    fragKit: RenderFrag
+class VFragContainer {
+    public fragKit: RenderFrag;
     constructor(frag: RenderFrag) {
-        this.fragKit = frag
+        this.fragKit = frag;
     }
     get firstChild(): Node {
         return this.fragKit.node(0);
     }
     get childNodes(): Node[] {
-        return this.fragKit.nodes()
+        return this.fragKit.nodes();
     }
     public replaceChild(newChild: Node, oldChild: Node): Node {
         (this.fragKit.currentContainer() as Node).replaceChild(newChild, oldChild);
@@ -38,7 +32,7 @@ class VFragContainer implements Container {
         return newChild;
     }
     public insertBefore(newChild: Node, refChild: Node): Node {
-        (this.fragKit.currentContainer() as Node).replaceChild(newChild, refChild);
+        (this.fragKit.currentContainer() as Node).insertBefore(newChild, refChild);
         this.fragKit.insertBefore(newChild, refChild);
         return newChild;
     }
@@ -50,151 +44,174 @@ class VFragContainer implements Container {
         }
     }
     public appendChild(newChild: Node): Node {
-        this.fragKit.append(newChild as unknown as HTMLElement);
+        this.fragKit.append((newChild as unknown) as HTMLElement);
         return newChild;
     }
     public removeChild(oldChild: Node): Node {
-        this.fragKit.removeChild(oldChild as HTMLElement)
-        return (this.fragKit.currentContainer() as Node).removeChild(oldChild);
+        this.fragKit.removeChild(oldChild as HTMLElement);
+        try {
+            return (this.fragKit.currentContainer() as Node).removeChild(oldChild);
+        } catch (error) {
+            return oldChild;
+        }
     }
 }
 
 function insertAfter<T extends Node>(container: T, newElem, refElem: T) {
     if (isUnDef(container)) {
-        return
+        return;
     }
-    // 这里要是写nextSibling效果会非常迷，可能是浏览器的bug，空的text node的位置会被偏移到他前面的elem上...
-    const afterElem = (refElem as any).nextElementSibling
+    const afterElem = refElem.nextSibling;
     if (afterElem) {
-        container.insertBefore(newElem, refElem)
+        container.insertBefore(newElem, refElem);
     } else {
-        container.appendChild(newElem)
+        container.appendChild(newElem);
     }
 }
 
-export function NewFrag(_container: HTMLElement, refElem?: HTMLElement): RenderFrag {
-    const id = UniqueId()
-    const anchor = document.createComment(id)
-    let children: HTMLElement[] = []
+export function NewFrag(superContainer: HTMLElement, refElem?: HTMLElement): RenderFrag {
+    const id = UniqueId();
+    const anchor = document.createComment(id);
+    let children: HTMLElement[] = [];
+
+    let superRefChild: HTMLElement = null;
 
     if (refElem) {
-        insertAfter(_container, anchor, refElem)
+        insertAfter(superContainer, anchor, refElem);
     } else {
-        _container.appendChild(anchor)
+        superContainer.appendChild(anchor);
     }
 
     const currentContainer = () => {
         if (isEmpty()) {
-            return anchor.parentNode
+            return anchor.parentNode || superContainer;
         }
-        return children.reduce((c, x) => c || x.parentNode, null)
-    }
-    const isEmpty = () => children.length === 0
-    const has = (elem: HTMLElement): boolean => children.length === 0 ? false : !!children.find(child => child === elem)
+        return children.reduce((c, x) => c || x.parentNode, null);
+    };
+    const isEmpty = () => children.length === 0;
+    const has = (elem: HTMLElement): boolean =>
+        children.length === 0 ? false : !!children.find(child => child === elem);
     const append = (elem: HTMLElement) => {
+        if (anchor.parentElement && anchor.parentElement !== superContainer) {
+            superContainer = anchor.parentElement;
+        }
+        if (children.length !== 0 && anchor.parentElement) {
+            anchor.parentElement.removeChild(anchor);
+        }
         if (isEmpty()) {
-            if (elem instanceof DocumentFragment) {
-                children = children.concat(Array.from(elem.childNodes) as HTMLElement[])
+            if (anchor.parentNode) {
+                anchor.parentNode.insertBefore(elem, anchor);
+                anchor.parentNode.removeChild(anchor);
             } else {
-                children.push(elem)
+                // 由于patch函数删除可能会导致元素丢失
+                const con = currentContainer();
+                if (superRefChild && superRefChild.parentElement === con) {
+                    con.insertBefore(elem, superRefChild);
+                    superRefChild = null;
+                } else {
+                    con.appendChild(elem);
+                }
             }
-            anchor.parentNode.insertBefore(elem, anchor)
-            anchor.parentNode.removeChild(anchor)
+            if (elem instanceof DocumentFragment) {
+                children = children.concat(Array.from(elem.childNodes) as HTMLElement[]);
+            } else {
+                children.push(elem);
+            }
         } else {
-            const lastChild = children[children.length - 1]
+            const lastChild = children[children.length - 1];
             if (elem instanceof DocumentFragment) {
-                children = children.concat(Array.from(elem.childNodes) as HTMLElement[])
+                children = children.concat(Array.from(elem.childNodes) as HTMLElement[]);
             } else {
-                children.push(elem)
+                children.push(elem);
             }
-            // lastChild.parentNode.insertBefore(elem, lastChild)
-            insertAfter(lastChild.parentNode, elem, lastChild)
+            insertAfter(lastChild.parentNode, elem, lastChild);
         }
-    }
-    const replace = (frag) => {
-        const nxtChild = Array.from(frag.childNodes)
+    };
+    const replace = (frag: DocumentFragment) => {
+        if (anchor.parentElement && anchor.parentElement !== superContainer) {
+            superContainer = anchor.parentElement;
+        }
+        if (children.length !== 0 && anchor.parentElement) {
+            superContainer = anchor.parentElement;
+            anchor.parentElement.removeChild(anchor);
+            superRefChild = (anchor as any) as HTMLElement;
+        }
+        let nxtChild = (() => {
+            if (Array.isArray(frag)) {
+                return frag;
+            }
+            return [frag];
+        })();
+        nxtChild = (flatten(nxtChild) as any[]).map(f => {
+            if (f instanceof DocumentFragment) {
+                return Array.from(f.childNodes);
+            }
+            return f;
+        });
+        nxtChild = flatten(nxtChild);
 
-        if (nxtChild.length === 0) {
-            const container = children[0].parentElement
-            if (children.length !== 0) {
-                children[0].parentNode.insertBefore(anchor, children[0])
-                children.forEach(ch => container.removeChild(ch))
-            }
+        if (nxtChild.length === 0 && children.length !== 0) {
+            children[0].parentNode.insertBefore(anchor, children[0]);
         }
-        // else if (nxtChild.length === 1) {
-        //     if (!isEmpty()) {
-        //         const container = children[0].parentElement
-        //         children.forEach(ch => container.removeChild(ch))
-        //     }
-        //     anchor.parentNode.insertBefore(frag, anchor)
-        //     anchor.parentNode.removeChild(anchor)
-        // } else {
-        //     const prev = children.map(ch => Dom2Vnode(ch))
-        //     const next = nxtChild.map(ch => Dom2Vnode(ch))
-        //     patchChildren(childType.MULITPLE, childType.MULITPLE, prev, next, new VFragContainer(kit))
-        // }
-        else {
-            if (!isEmpty()) {
-                const container = children[0].parentElement
-                children.forEach(ch => container.removeChild(ch))
-            }
-            anchor.parentNode.insertBefore(frag, anchor)
-            anchor.parentNode.removeChild(anchor)
+
+        if (nxtChild.length !== 0 && children.length === 0) {
+            superContainer = anchor.parentElement;
+            // anchor.parentElement && anchor.parentElement.removeChild(anchor)
+            superRefChild = (anchor as any) as HTMLElement;
         }
-        children = nxtChild as HTMLElement[]
-    }
-    const clear = () => {
-        if (isEmpty()) {
-            return
+
+        superContainer = currentContainer() as HTMLElement;
+        if (children.length !== 0) {
+            superRefChild = children[children.length - 1].nextElementSibling as HTMLElement;
         }
-        const container = currentContainer()
-        for (const ch of children) {
-            try {
-                container.insertBefore(anchor, ch)
-            } catch (error) {
-                continue
-            }
-            break
+
+        patchChildren(
+            [...children],
+            [...nxtChild] as Element[],
+            (new VFragContainer(kit) as any) as Element,
+        );
+        if (children.length !== 0 && anchor.parentElement) {
+            anchor.parentElement.removeChild(anchor);
         }
-        children.forEach(ch => ch.parentNode && container.removeChild(ch))
-        children = []
-    }
+
+        children = children.filter(c => c);
+    };
 
     const kit = {
         __id: id,
         has,
         replace,
-        clear,
         append,
-        hide() {
-            children.forEach((ch) => {
-                if (ch.style) {
-                    ch.style.display = 'none'
-                }
-            })
-        },
         isEmpty,
         nodes() {
-            return children
+            return children;
         },
         node(idx: number) {
-            return children[idx]
+            return children[idx];
         },
         currentContainer,
         removeChild(elem) {
-            children = children.filter(child => child !== elem)
+            children = children.filter(child => child !== elem);
         },
         replaceChild(newChild: Node, oldChild: Node) {
-            const idx = children.findIndex(child => child === oldChild)
-            children.splice(idx, 1, newChild as HTMLElement)
+            const newidx = children.findIndex(child => child === newChild);
+            const oldidx = children.findIndex(child => child === oldChild);
+            children.splice(oldidx, 1, newChild as HTMLElement);
+            children.splice(newidx, 1, oldChild as HTMLElement);
         },
-        insertBefore(newChild: Node, refChild: Node) {
-            const idx = children.findIndex(child => child === refChild)
-            children.splice(idx, 1, newChild as HTMLElement, refChild as HTMLElement)
-        }
-    }
+        insertBefore(newChild: Node, refChild?: Node) {
+            if (!refChild) {
+                children.push(newChild as HTMLElement);
+                return;
+            }
+            const idx = children.findIndex(child => child === refChild);
+            if (idx === -1) {
+                children.push(newChild as HTMLElement);
+                return;
+            }
+            children.splice(idx, 1, newChild as HTMLElement, refChild as HTMLElement);
+        },
+    };
 
-    return kit
+    return kit;
 }
-
-

@@ -1,6 +1,5 @@
-describe("index", () => {
-
-    it("some case", () => {
-        void (0);
+describe('index', () => {
+    it('some case', () => {
+        // todo
     });
 });

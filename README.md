@@ -5,10 +5,10 @@
 Coming soon...
 
 # ChangeLog
-hox,ui(antd)
+diff,more hox(hashRouter,reducer,store,statemachine)
 
 # TODO
-diff,async,refactoring html,useStyle
+async render,refactoring html,cache component
 
 # License
 GPL-3.0

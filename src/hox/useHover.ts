@@ -1,15 +1,15 @@
-import { useState } from './useState';
 import { useEventListener } from './useEventListener';
+import { useState } from './useState';
 
 export const useHover = <T extends HTMLElement>() => {
-    const _state = useState(false)
-    const refOver = useEventListener('mouseover', () => _state.v = true)
-    const refOut = useEventListener('mouseout', () => _state.v = false)
+    const state = useState(false);
+    const refOver = useEventListener('mouseover', () => (state.v = true));
+    const refOut = useEventListener('mouseout', () => (state.v = false));
     return {
-        isHovering: () => _state.v,
+        isHovering: () => state.v,
         hoverRef(elem: T) {
-            refOver(elem)
-            refOut(elem)
-        }
-    }
-}
+            refOver(elem);
+            refOut(elem);
+        },
+    };
+};

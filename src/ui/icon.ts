@@ -1,34 +1,36 @@
-import { useStyle, StyleOptions } from '../hox/useStyle';
+import { excludeKeysObj, isIncluded, isUnDefAll } from '../common';
+import { StyleOptions, useStyle } from '../hox/useStyle';
 import { html } from '../index';
-import { isUnDefAll, isIncluded, excludeKeysObj } from '../common'
 
 interface IconProps {
-    name: string
-    theme?: 'sharp' | 'outlined' | 'round' | 'tow-tone'
-    [key: string]: any
+    name: string;
+    theme?: 'sharp' | 'outlined' | 'round' | 'tow-tone';
+    [key: string]: any;
 }
 
-const MaterialIconCssURL = 'https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Sharp|Material+Icons+Round|Material+Icons+Two+Tone'
+const MaterialIconCssURL =
+    'https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Sharp|Material+Icons+Round|Material+Icons+Two+Tone';
 
 const includeMaterialIconCss = () => {
     if (isIncluded(MaterialIconCssURL)) {
-        return
+        return;
     }
-    const link = document.createElement('link')
-    link.rel = 'stylesheet'
-    link.href = MaterialIconCssURL
-    document.head.appendChild(link)
-}
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = MaterialIconCssURL;
+    document.head.appendChild(link);
+};
 
 export const Icon = (props: IconProps) => {
-    const { name, theme } = props
+    const { name, theme } = props;
 
-    includeMaterialIconCss()
+    includeMaterialIconCss();
 
     return html`
-    <i
-        class=${'material-icons' + (theme ? `-${theme}` : '')}
-        ${excludeKeysObj(props, ['name', 'theme'])}    
-    >${name}</i>`
-}
-
+        <i
+            class=${'material-icons' + (theme ? `-${theme}` : '')}
+            ${excludeKeysObj(props, ['name', 'theme'])}
+            >${name}</i
+        >
+    `;
+};

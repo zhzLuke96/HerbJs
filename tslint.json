@@ -27,8 +27,12 @@
             "always"
         ],
         "curly": true,
-        "arrow-parens": true,
-        "no-var-keyword": true
+        "arrow-parens": false,
+        "no-var-keyword": true,
+        "quotemark": false,
+        "no-bitwise": false,
+        "no-console": [true, "log"],
+        "object-literal-key-quotes": [true, "as-needed"]
     },
     "jsRules": {
         "max-line-length": {

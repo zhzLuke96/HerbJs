@@ -1,94 +1,101 @@
 import { UniqueId } from '../common';
 
 export interface StyleOptions {
-    [key: string]: string | number | StyleOptions
+    [key: string]: string | number | StyleOptions;
 }
 
 const parseStyle = (style: StyleOptions, selector?: string): string => {
-    const styles = []
-    let ret = ''
+    const styles = [];
+    let ret = '';
     for (const key in style) {
         if (style.hasOwnProperty(key)) {
             const val = style[key];
             if (typeof val === 'object') {
-                const nxtSelector = key.split(',').map(k => {
-                    if (k.includes('&')) {
-                        return k.replace('&', selector)
-                    } else {
-                        return `${selector} ${k}`
-                    }
-                }).join(',')
-                styles.push(parseStyle(val, nxtSelector))
+                const nxtSelector = key
+                    .split(',')
+                    .map(k => {
+                        if (k.includes('&')) {
+                            return k.replace('&', selector);
+                        } else {
+                            return `${selector} ${k}`;
+                        }
+                    })
+                    .join(',');
+                styles.push(parseStyle(val, nxtSelector));
             } else {
                 if (key === 'content') {
-                    ret += `${key}:'${val}';`
-                    continue
+                    ret += `${key}:'${val}';`;
+                    continue;
                 }
-                ret += `${key}:${val};`
+                ret += `${key}:${val};`;
             }
         }
     }
-    return `${selector}{${ret}}${styles.join('')}`
-}
+    return `${selector}{${ret}}${styles.join('')}`;
+};
 
-const styleClsMap: Map<string, string> = new Map<string, string>()
+const styleClsMap: Map<string, string> = new Map<string, string>();
 
 const styleToCls = (style: StyleOptions): [string, boolean] => {
-    const text = JSON.stringify(style)
+    const text = JSON.stringify(style);
     if (styleClsMap.has(text)) {
-        return [styleClsMap.get(text), true]
+        return [styleClsMap.get(text), true];
     }
-    const cls = 'style_' + UniqueId()
-    styleClsMap.set(text, cls)
-    return [cls, false]
-}
+    const cls = 'style_' + UniqueId();
+    styleClsMap.set(text, cls);
+    return [cls, false];
+};
 
-const emptyObject = o => Object.keys(o).length === 0
+const emptyObject = o => Object.keys(o).length === 0;
 
 export const useStyle = (style: StyleOptions = {}, applay: boolean = true) => {
-    let className = ''
-    let dupe = false
-    let EMPTY = emptyObject(style)
+    let className = '';
+    let dupe = false;
+    const EMPTY = emptyObject(style);
     if (!EMPTY) {
-        [className, dupe] = styleToCls(style)
+        [className, dupe] = styleToCls(style);
         if (!dupe) {
-            const cssText = parseStyle(style, `.${className}`)
-            const styleNode = document.createElement('style')
-            styleNode.type = 'text/css'
-            styleNode.innerHTML = cssText
-            document.head.appendChild(styleNode)
+            const cssText = parseStyle(style, `.${className}`);
+            const styleNode = document.createElement('style');
+            styleNode.type = 'text/css';
+            styleNode.innerHTML = cssText;
+            document.head.appendChild(styleNode);
         }
     }
 
-    let ref: HTMLElement = null
+    let ref: HTMLElement = null;
 
     return {
+        className,
         styleRef: (elem: HTMLElement) => {
             if (EMPTY) {
-                return
+                return;
             }
-            ref = elem
+            ref = elem;
             if (applay) {
-                elem.classList.add(className)
+                elem.classList.add(className);
             }
         },
         toggle() {
             if (!ref) {
-                return
+                console.warn('ref is not set.', className);
+                return;
             }
-            ref.classList.toggle(className)
+            ref.classList.toggle(className);
         },
         add() {
             if (!ref) {
-                return
+                console.warn('ref is not set.', className);
+                return;
             }
-            ref.classList.add(className)
+            ref.classList.add(className);
         },
         remove() {
             if (!ref) {
-                return
+                console.warn('ref is not set.', className);
+                return;
             }
-            ref.classList.remove(className)
-        }
-    }
-}
+            ref.classList.remove(className);
+        },
+    };
+};

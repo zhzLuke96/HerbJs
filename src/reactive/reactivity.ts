@@ -1,6 +1,6 @@
-import { baseHandler } from "./basehandler";
-import { nextTick } from "./nxtTick";
-import { UniqueId } from "../common";
+import { UniqueId } from '../common';
+import { baseHandler } from './basehandler';
+import { nextTick } from './nxtTick';
 
 type Deps = Set<Effect>;
 
@@ -44,14 +44,20 @@ export function reactive<T extends object>(target: T, upper: object = null): T {
 
 export function trigger(target: object, key: string) {
     const depsMap = targetMap.get(target);
-    if (depsMap === undefined) { return; }
+    if (depsMap === undefined) {
+        return;
+    }
     const effects = new Set();
     const computedRunners = new Set();
     if (key) {
         const deps = depsMap.get(key);
-        if (!deps) { return; }
+        if (!deps) {
+            return;
+        }
         /* tslint:disable */
-        deps.forEach((effect) => effect.computed ? computedRunners.add(effect) : effects.add(effect));
+        deps.forEach(effect =>
+            effect.computed ? computedRunners.add(effect) : effects.add(effect),
+        );
     }
     const run = (e: Effect) => {
         /* tslint:enable */
@@ -68,7 +74,9 @@ export function trigger(target: object, key: string) {
 /* tslint:disable */
 export function track(target: object, key: string) {
     const effect = effectStack[effectStack.length - 1];
-    if (!effect) { return; }
+    if (!effect) {
+        return;
+    }
 
     let depsMap = targetMap.get(target);
     if (depsMap === undefined) {
@@ -124,15 +132,21 @@ function run(effect: Effect, fn: (...ags: any[]) => any, args: any[]): any {
 export function computed(fn: () => any, options: object = {}) {
     let dirty = true;
     let value: any;
-    const runner = effect(fn, Object.assign({
-        computed: true,
-        lazy: true,
-        scheduler() {
-            dirty = true;
-            // 触发修改，如果有副作用则顺序调用
-            trigger(ret, "value");
-        },
-    }, options));
+    const runner = effect(
+        fn,
+        Object.assign(
+            {
+                computed: true,
+                lazy: true,
+                scheduler() {
+                    dirty = true;
+                    // 触发修改，如果有副作用则顺序调用
+                    trigger(ret, 'value');
+                },
+            },
+            options,
+        ),
+    );
     const ret = {
         effect: runner,
         get value() {

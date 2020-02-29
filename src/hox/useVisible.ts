@@ -1,22 +1,22 @@
 import { useState } from './useState';
 
 export const useVisible = <T extends HTMLElement>() => {
-    const _state = useState(false)
+    const state = useState(false);
     return {
-        isVisibility: () => _state.v,
+        isVisibility: () => state.v,
         visibleRef(elem: T) {
-            const intersectionObserver = new IntersectionObserver(function (entries) {
+            const intersectionObserver = new IntersectionObserver(entries => {
                 if (entries[0].intersectionRatio <= 0) {
-                    if (_state.v) {
-                        _state.v = false
+                    if (state.v) {
+                        state.v = false;
                     }
                 } else {
-                    if (!_state.v) {
-                        _state.v = true
+                    if (!state.v) {
+                        state.v = true;
                     }
                 }
-            })
-            intersectionObserver.observe(elem)
-        }
-    }
-}
+            });
+            intersectionObserver.observe(elem);
+        },
+    };
+};

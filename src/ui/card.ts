@@ -1,15 +1,15 @@
-import { useStyle, StyleOptions } from '../hox/useStyle';
+import { isUnDefAll } from '../common';
+import { StyleOptions, useStyle } from '../hox/useStyle';
 import { html } from '../index';
-import { isUnDefAll } from '../common'
 
-interface cardProps {
-    title?: string | DocumentFragment
-    extra?: string | DocumentFragment
-    content?: string | DocumentFragment
-    actions?: Array<string | DocumentFragment>
-    style?: StyleOptions
-    cover?: string | DocumentFragment
-    size?: string
+interface CardProps {
+    title?: string | DocumentFragment;
+    extra?: string | DocumentFragment;
+    content?: string | DocumentFragment;
+    actions?: Array<string | DocumentFragment>;
+    style?: StyleOptions;
+    cover?: string | DocumentFragment;
+    size?: string;
 }
 
 const CardStyle = {
@@ -47,7 +47,7 @@ const CardStyle = {
         'margin-bottom': '-1px',
         'border-radius': '2px 2px 0 0',
 
-        'a': {
+        a: {
             color: '#1890ff',
             'text-decoration': 'none',
             'background-color': 'transparent',
@@ -57,12 +57,12 @@ const CardStyle = {
             transition: 'color 0.3s ease',
 
             '&:hover': {
-                color: '#40a9ff'
+                color: '#40a9ff',
             },
             '&:active': {
-                color: '#096dd9'
-            }
-        }
+                color: '#096dd9',
+            },
+        },
     },
     '.card-actions': {
         margin: 0,
@@ -82,9 +82,9 @@ const CardStyle = {
             cursor: 'pointer',
 
             '&:hover': {
-                color: '#1890ff'
-            }
-        }
+                color: '#1890ff',
+            },
+        },
     },
     '.card-content': {
         padding: '24px',
@@ -96,62 +96,75 @@ const CardStyle = {
         '& > *': {
             display: 'block',
             width: '100%',
-        }
-    }
-}
+        },
+    },
+};
 
 const shadowStyle = {
     '&:hover': {
         'border-color': 'rgba(0, 0, 0, 0.09)',
         'box-shadow': '0 2px 8px rgba(0, 0, 0, 0.09)',
     },
-}
+};
 
-export const Card = (props: cardProps = {}) => {
-    const { title, extra, actions, style, cover } = props
-    let { content } = props
+export const Card = (props: CardProps = {}) => {
+    const { title, extra, actions, style, cover } = props;
+    let { content } = props;
 
     if (isUnDefAll([title, actions, content])) {
-        content = 'Here is Empty Configuretion Card.'
+        content = 'Here is Empty Configuretion Card.';
     }
 
-    const { styleRef } = useStyle(style)
-    const { styleRef: hoverShadow } = useStyle(shadowStyle)
+    const { styleRef } = useStyle(style);
+    const { styleRef: hoverShadow } = useStyle(shadowStyle);
 
-    const {
-        styleRef: cardRef
-    } = useStyle(CardStyle)
+    const { styleRef: cardRef } = useStyle(CardStyle);
 
     return html`
-    <div
-        ref=${[cardRef, styleRef, hoverShadow]}
-        class='card'
-    >
-        ${() => !cover ? '' : html`
-            <div class="card-cover">
-                ${() => cover}
-            </div>
-        `}
-        ${() => !title ? '' : html`
-            <header class="card-header">
-                <div class="card-title">
-                    ${() => title}
-                </div>
-                <div class="card-extra">
-                    ${() => extra}
-                </div>
-            </header>
-        `}
-        ${() => !content ? '' : html`
-            <div class="card-content">
-                ${() => content}
-            </div>
-        `}
-        ${() => !actions ? '' : html`
-            <footer class="card-actions">
-                ${() => actions.map(content => html`<div>${content}</div>`)}
-            </footer>
-        `}
-    </div>
-    `
-}
+        <div ref=${[cardRef, styleRef, hoverShadow]} class="card">
+            ${() =>
+                !cover
+                    ? ''
+                    : html`
+                          <div class="card-cover">
+                              ${() => cover}
+                          </div>
+                      `}
+            ${() =>
+                !title
+                    ? ''
+                    : html`
+                          <header class="card-header">
+                              <div class="card-title">
+                                  ${() => title}
+                              </div>
+                              <div class="card-extra">
+                                  ${() => extra}
+                              </div>
+                          </header>
+                      `}
+            ${() =>
+                !content
+                    ? ''
+                    : html`
+                          <div class="card-content">
+                              ${() => content}
+                          </div>
+                      `}
+            ${() =>
+                !actions
+                    ? ''
+                    : html`
+                          <footer class="card-actions">
+                              ${() =>
+                                  actions.map(
+                                      inner =>
+                                          html`
+                                              <div>${inner}</div>
+                                          `,
+                                  )}
+                          </footer>
+                      `}
+        </div>
+    `;
+};

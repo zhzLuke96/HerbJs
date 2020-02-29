@@ -1,38 +1,42 @@
+import { isDef, isDefAll } from '../common';
 import { reactive } from '../reactive/reactivity';
 
 export interface StateType<T> {
-    value: T
-    val: T
-    v: T
+    value: T;
+    val: T;
+    v: T;
 }
+
+export const isState = o =>
+    isDef(o) && isDefAll([o.value, o.val, o.v]) && o.value === o.val && o.value === o.v;
 
 export function useState<T>(initValue: T): StateType<T> {
     const ret = Object.create(null);
-    let value = initValue
+    let value = initValue;
     function set(val: T) {
         // if (value === val) return
         // 这层不能脏检查！
-        value = val
+        value = val;
     }
     function get(): T {
-        return value
+        return value;
     }
     Object.defineProperties(ret, {
         value: {
             enumerable: true,
             set,
-            get
+            get,
         },
         val: {
             enumerable: true,
             set,
-            get
+            get,
         },
         v: {
             enumerable: true,
             set,
-            get
-        }
-    })
-    return reactive<{ value: T, v: T, val: T }>(ret)
+            get,
+        },
+    });
+    return reactive<{ value: T; v: T; val: T }>(ret);
 }

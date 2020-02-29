@@ -6,7 +6,8 @@ const devMode = process.env.NODE_ENV !== 'production'
 module.exports = {
     devtool: devMode ? "inline-source-map" : false,
     entry: {
-        "index": './src/index.ts'
+        "index": './src/index.ts',
+        "core": './src/index_core.ts'
     },
     output: {
         library: "herb",

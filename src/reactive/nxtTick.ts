@@ -14,33 +14,32 @@ let nxtCall;
 if (p) {
     nxtCall = (cb: () => any) => p.then(() => cb());
 } else {
-    nxtCall = (cb: () => any) => (window.setImmediate || window.setTimeout)((_) => cb(), 0);
+    nxtCall = (cb: () => any) => (window.setImmediate || window.setTimeout)(_ => cb(), 0);
 }
 
 export const nextTick = (() => {
-    return (cb: () => any): Promise<any> => {
+    return (cb: () => any): Promise<void> => {
         if (waiting.has(cb)) {
             return;
         } else {
             waiting.add(cb);
         }
-        return nxtCall(cb)
-            .then(() => waiting.delete(cb));
+        return nxtCall(cb).then(() => waiting.delete(cb));
     };
 })();
 
-const waittingKeyCall = new WeakMap<any>()
+const waittingKeyCall = new WeakMap<any>();
 
 const callWaiting = (key: any) => {
     nxtCall(() => {
-        waittingKeyCall.get(key)()
-        waittingKeyCall.delete(key)
-    })
-}
+        waittingKeyCall.get(key)();
+        waittingKeyCall.delete(key);
+    });
+};
 
 export const nextTickWithKey = (key: any, cb: () => void) => {
     if (!waittingKeyCall.has(key)) {
-        nxtCall(() => callWaiting(key))
+        nxtCall(() => callWaiting(key));
     }
-    waittingKeyCall.set(key, cb)
-}
+    waittingKeyCall.set(key, cb);
+};

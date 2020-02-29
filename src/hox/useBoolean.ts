@@ -1,14 +1,14 @@
-import { useState } from './useState'
+import { useState } from './useState';
 
 export const useBoolean = (init = false) => {
-    const _state = useState(init)
-    const toggle = () => _state.v = !_state.v
-    const setTrue = () => _state.v = true
-    const setFalse = () => _state.v = false
+    const state = useState(init);
+    const toggle = () => (state.v = !state.v);
+    const setTrue = () => (state.v = true);
+    const setFalse = () => (state.v = false);
     return {
-        state: () => _state.v,
+        state: () => state.v,
         toggle,
         setTrue,
-        setFalse
-    }
-}
+        setFalse,
+    };
+};

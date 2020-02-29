@@ -14,7 +14,9 @@
     "lint": "tslint -c tslint.json \"./src/**/*.ts\" --force",
     "lint:fix": "tslint -c tslint.json --fix \"./src/**/*.ts\" --force",
     "test": "jest",
-    "test:cover": "jest --coverage"
+    "test:cover": "jest --coverage",
+    "format": "prettier --write ./src/**/**.ts",
+    "pre:commit": "npm run lint:fix && npm run format && npm run test"
   },
   "keywords": [],
   "author": "",
@@ -24,6 +26,7 @@
     "@types/jest": "^24.0.22",
     "cross-env": "^6.0.3",
     "jest": "^24.9.0",
+    "prettier": "^1.19.1",
     "ts-jest": "^24.1.0",
     "ts-loader": "^6.2.1",
     "tslint": "^5.20.1",
