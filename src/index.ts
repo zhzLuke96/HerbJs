@@ -18,4 +18,4 @@ export {
 } from './hox/index';
 export { Card, Button, Button as Btn, Row, Col, Input, Textarea, Icon } from './ui/index';
 export { html } from './html/index';
-export { GetValue } from './common'
+export { GetValue } from './common';
