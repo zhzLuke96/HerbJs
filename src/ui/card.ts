@@ -1,16 +1,6 @@
-import { isUnDefAll } from '../common';
+import { isUnDefAll, excludeKeysObj } from '../common';
 import { StyleOptions, useStyle } from '../hox/useStyle';
 import { html } from '../index';
-
-interface CardProps {
-    title?: string | DocumentFragment;
-    extra?: string | DocumentFragment;
-    content?: string | DocumentFragment;
-    actions?: Array<string | DocumentFragment>;
-    style?: StyleOptions;
-    cover?: string | DocumentFragment;
-    size?: string;
-}
 
 const CardStyle = {
     width: '300px',
@@ -107,33 +97,45 @@ const shadowStyle = {
     },
 };
 
+interface CardProps {
+    title?: string | DocumentFragment;
+    extra?: string | DocumentFragment;
+    content?: string | DocumentFragment;
+    actions?: Array<string | DocumentFragment>;
+    cover?: string | DocumentFragment;
+    size?: string;
+}
+
 export const Card = (props: CardProps = {}) => {
-    const { title, extra, actions, style, cover } = props;
+    const { title, extra, actions, cover } = props;
     let { content } = props;
 
     if (isUnDefAll([title, actions, content])) {
         content = 'Here is Empty Configuretion Card.';
     }
 
-    const { styleRef } = useStyle(style);
     const { styleRef: hoverShadow } = useStyle(shadowStyle);
 
     const { styleRef: cardRef } = useStyle(CardStyle);
 
     return html`
-        <div ref=${[cardRef, styleRef, hoverShadow]} class="card">
+        <div
+            ref=${[cardRef, hoverShadow, (props as any).ref]}
+            class="card"
+            ${excludeKeysObj(props, ['title', "extra", "actions", "cover", 'content'])}
+        >
             ${() =>
-                !cover
-                    ? ''
-                    : html`
+            !cover
+                ? ''
+                : html`
                           <div class="card-cover">
                               ${() => cover}
                           </div>
                       `}
             ${() =>
-                !title
-                    ? ''
-                    : html`
+            !title
+                ? ''
+                : html`
                           <header class="card-header">
                               <div class="card-title">
                                   ${() => title}
@@ -144,25 +146,25 @@ export const Card = (props: CardProps = {}) => {
                           </header>
                       `}
             ${() =>
-                !content
-                    ? ''
-                    : html`
+            !content
+                ? ''
+                : html`
                           <div class="card-content">
                               ${() => content}
                           </div>
                       `}
             ${() =>
-                !actions
-                    ? ''
-                    : html`
+            !actions
+                ? ''
+                : html`
                           <footer class="card-actions">
                               ${() =>
-                                  actions.map(
-                                      inner =>
-                                          html`
+                        actions.map(
+                            inner =>
+                                html`
                                               <div>${inner}</div>
                                           `,
-                                  )}
+                        )}
                           </footer>
                       `}
         </div>

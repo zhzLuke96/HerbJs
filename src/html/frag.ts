@@ -191,7 +191,11 @@ export function NewFrag(superContainer: HTMLElement, refElem?: HTMLElement): Ren
         },
         currentContainer,
         removeChild(elem) {
-            children = children.filter(child => child !== elem);
+            const next = children.filter(child => child !== elem);
+            if (next.length === 0) {
+                children[0].parentElement.insertBefore(anchor, children[0])
+            }
+            children = next
         },
         replaceChild(newChild: Node, oldChild: Node) {
             const newidx = children.findIndex(child => child === newChild);

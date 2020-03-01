@@ -112,17 +112,17 @@ export const Input = (props: InputProps) => {
     return html`
         <div
             ref=${[
-                inputStyleRef,
-                inputFocusStyle,
-                inputDisabledStyle,
-                elem => elem.addEventListener('click', () => innerRef && innerRef.focus()),
-            ]}
+            inputStyleRef,
+            inputFocusStyle,
+            inputDisabledStyle,
+            elem => elem.addEventListener('click', () => innerRef && innerRef.focus()),
+        ]}
             ${{ style: (props as any).style }}
         >
             ${() =>
-                !prefix
-                    ? ''
-                    : html`
+            !prefix
+                ? ''
+                : html`
                           <span class="input-group-prefix">${prefix}</span>
                       `}
             <input
@@ -130,21 +130,26 @@ export const Input = (props: InputProps) => {
                 ${excludeKeysObj(props, ['size', 'style', 'prefix', 'suffix'])}
             />
             ${() =>
-                !suffix
-                    ? ''
-                    : html`
+            !suffix
+                ? ''
+                : html`
                           <span class="input-group-suffix">${suffix}</span>
                       `}
         </div>
     `;
 };
 
-export const Textarea = props => {
+interface TextareaProps {
+    value?: string
+}
+
+export const Textarea = (props: TextareaProps) => {
+    const { value } = props
     const { styleRef } = useStyle({
         ...InputStyle,
         ...inputPlaceholderStyle,
         '&:focus': focusStyle,
     });
 
-    return `<textarea ref=${[styleRef]} ${excludeKeysObj(props, [])}></textarea>`;
+    return html`<textarea ref=${[styleRef]} ${excludeKeysObj(props, ['value'])}>${() => GetValue(value)}</textarea>`;
 };

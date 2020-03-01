@@ -156,7 +156,7 @@ export function GetValue<T>(x: T | StateType<T>): T {
     }
     x = x as StateType<T>;
     if (isState(x)) {
-        return x.value;
+        return GetValue(x.value);
     }
     return (x as unknown) as T;
 }

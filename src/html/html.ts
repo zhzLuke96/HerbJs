@@ -71,10 +71,10 @@ const parseHTML = (htmlText: string) => {
             attrs: !$elem.attributes
                 ? []
                 : Array.from($elem.attributes).map($a => ({
-                      key: $a.name || $a.nodeName,
-                      type: $a.nodeType,
-                      val: $a.value || $a.nodeValue || $a.textContent,
-                  })),
+                    key: $a.name || $a.nodeName,
+                    type: $a.nodeType,
+                    val: $a.value || $a.nodeValue || $a.textContent,
+                })),
             child: !$elem.childNodes
                 ? []
                 : Array.from($elem.childNodes).map($n => vify($n as HTMLElement)),
@@ -146,13 +146,13 @@ function tokenizer(strings: string[], values: exHtml[]) {
             const key = match[2];
             const val = values[i];
             const clearHtml = htmlText.substring(0, match.index);
-            tokens.push(clearHtml, {
-                key,
-                val,
-            });
+            if (clearHtml) {
+                tokens.push(clearHtml)
+            }
+            tokens.push({ key, val })
             continue;
         } else {
-            tokens.push(html);
+            tokens.push(htmlText);
         }
         if (i < values.length) {
             tokens.push(values[i]);

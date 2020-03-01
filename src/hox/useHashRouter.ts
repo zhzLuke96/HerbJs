@@ -8,7 +8,7 @@ interface RouterRoutes {
 
 const escapeRegExp = str => str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 
-const defaultNotFound = html`
+const defaultNotFound = () => html`
     <h1>Not Found</h1>
     <p>Please try the following:</p>
     <ul>
@@ -93,7 +93,7 @@ export const useHashRouter = (routes: RouterRoutes) => {
             return;
         }
         // defaultNotFound
-        routerState.currentComponent = defaultNotFound;
+        routerState.currentComponent = defaultNotFound();
     });
 
     // Router Component

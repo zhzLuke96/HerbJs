@@ -2,12 +2,12 @@ import { flatten, getFuncVal, GetValue, isDef, isDOM, isUnDef, UniqueId } from '
 import { isState } from '../hox/useState';
 import { effect } from '../reactive/reactivity';
 import { NewFrag } from './frag';
-import { _id, isHTML, preHTML, ValueMap, VDom } from './html';
+import { genID, isHTML, PreHTML, ValueMap, VDom } from './html';
 
 const pointRe = /\[(.+?):(\w+?)\]/g;
 const pointReOneline = /^\[(.+?):(\w+?)\]$/;
 
-export const render = (tpl: preHTML) => {
+export const render = (tpl: PreHTML) => {
     const { vdom, vmap } = tpl;
 
     return () => {

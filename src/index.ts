@@ -1,4 +1,5 @@
 export { reactive, effect as Effect } from './reactive/reactivity';
+export { nextTick } from './reactive/nxtTick';
 export {
     useState,
     useRequest,
@@ -15,5 +16,6 @@ export {
     useStateMachine,
     useHashRouter,
 } from './hox/index';
-export { Card, Button, Button as Btn, Row, Col, Input, Icon } from './ui/index';
+export { Card, Button, Button as Btn, Row, Col, Input, Textarea, Icon } from './ui/index';
 export { html } from './html/index';
+export { GetValue } from './common'
