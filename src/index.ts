@@ -15,6 +15,11 @@ export {
     useEffect,
     useStateMachine,
     useHashRouter,
+    useClickOutside,
+    useEmitter,
+    useFullScreen,
+    useLocalState,
+    useSessionState,
 } from './hox/index';
 export { Card, Button, Button as Btn, Row, Col, Input, Textarea, Icon } from './ui/index';
 export { html } from './html/index';
