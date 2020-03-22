@@ -6,7 +6,7 @@ export const useBoolean = (init = false) => {
     const setTrue = () => (state.v = true);
     const setFalse = () => (state.v = false);
     return {
-        state: () => state.v,
+        state,
         toggle,
         setTrue,
         setFalse,

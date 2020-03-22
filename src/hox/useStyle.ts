@@ -1,5 +1,16 @@
 import { UniqueId } from '../common';
 
+const cssReg = /([^ :]+?) ?: ?([^;]+?);/g;
+export const css = text => {
+    text = text[0];
+    const ret = {};
+    for (const match of text.matchAll(cssReg)) {
+        const [_, key, val] = match;
+        ret[key] = val;
+    }
+    return ret;
+};
+
 export interface StyleOptions {
     [key: string]: string | number | StyleOptions;
 }

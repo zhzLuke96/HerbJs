@@ -17,7 +17,7 @@ export { useRequest } from './useRequest';
 
 // css
 export { useMotion } from './useMotion';
-export { useStyle } from './useStyle';
+export { useStyle, css } from './useStyle';
 
 // global
 export { useWindowSize } from './useWindowSize';

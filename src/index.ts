@@ -10,6 +10,7 @@ export {
     useVisible,
     useMotion,
     useStyle,
+    css,
     useWindowSize,
     useResponsive,
     useEffect,
