@@ -13,6 +13,7 @@
         "experimentalDecorators": true,
         "esModuleInterop": true,
         "lib": [
+            "es2020.string",
             "es2017",
             "es6",
             "dom"

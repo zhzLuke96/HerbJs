@@ -1,10 +1,15 @@
 import { UniqueId } from '../common';
 
 const cssReg = /([^ :]+?) ?: ?([^;]+?);/g;
-export const css = text => {
-    text = text[0];
+export const css = (text: TemplateStringsArray, ...values: any[]) => {
+    let cssText = ''
+    for (const idx in text) {
+        if (text.hasOwnProperty(idx)) {
+            cssText += `${text[idx] || ''}${values[idx] || ''}`
+        }
+    }
     const ret = {};
-    for (const match of text.matchAll(cssReg)) {
+    for (const match of cssText.matchAll(cssReg)) {
         const [_, key, val] = match;
         ret[key] = val;
     }

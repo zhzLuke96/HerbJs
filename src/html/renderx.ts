@@ -23,7 +23,7 @@ const createTextNode = (text: any) => {
     if (noWord.test(content)) {
         return null;
     }
-    const str = text.toString().replace(/^[\s\n]+|[\s\n]+$/g, ' ');
+    const str = text.toString().replace(/^[ \t\n]+?|[ \t\n]+?$/g, ' ');
     return document.createTextNode(str);
 };
 const appendTextChild = (container: HTMLElement | DocumentFragment, text: any) => {
@@ -32,6 +32,15 @@ const appendTextChild = (container: HTMLElement | DocumentFragment, text: any) =
         return;
     }
     container.appendChild(textNode);
+};
+
+const DangerTextFactoryDIV = document.createElement('div');
+const appendDangerTextChild = (container: HTMLElement | DocumentFragment, text: any) => {
+    DangerTextFactoryDIV.innerHTML = text;
+    const textNode = Array.from(DangerTextFactoryDIV.childNodes).find(node => node.nodeType === 3);
+    if (textNode) {
+        container.appendChild(textNode);
+    }
 };
 
 interface RenderInfo {
@@ -99,6 +108,10 @@ function createFragByText(
                 appendTextChild(container, value);
                 return;
             case 'object':
+                if (value === null) {
+                    appendDangerTextChild(container, '&nbsp;');
+                    return
+                }
                 if (isState(value)) {
                     const stateTextNode = document.createTextNode('');
                     depFuncs.push(() => {
