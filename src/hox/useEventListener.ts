@@ -1,6 +1,7 @@
-export const useEventListener = <T extends HTMLElement>(
+export const useEventListener = <T extends EventTarget>(
     type: string,
-    handler: (...arg: any[]) => void,
+    handler: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions
 ) => {
-    return (elem: T) => elem.addEventListener(type, handler);
+    return (elem: T) => elem.addEventListener(type, handler, options);
 };

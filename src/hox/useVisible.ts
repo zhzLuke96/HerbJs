@@ -1,22 +1,25 @@
 import { useState } from './useState';
+import { nextTick } from '../reactive/nxtTick';
 
 export const useVisible = <T extends HTMLElement>() => {
-    const state = useState(false);
+    const state = useState(true);
     return {
         isVisibility: () => state.v,
         visibleRef(elem: T) {
-            const intersectionObserver = new IntersectionObserver(entries => {
-                if (entries[0].intersectionRatio <= 0) {
-                    if (state.v) {
-                        state.v = false;
+            nextTick(() => {
+                const intersectionObserver = new IntersectionObserver(entries => {
+                    if (entries[0].intersectionRatio <= 0) {
+                        if (state.v) {
+                            state.v = false;
+                        }
+                    } else {
+                        if (!state.v) {
+                            state.v = true;
+                        }
                     }
-                } else {
-                    if (!state.v) {
-                        state.v = true;
-                    }
-                }
-            });
-            intersectionObserver.observe(elem);
+                });
+                intersectionObserver.observe(elem);
+            })
         },
     };
 };

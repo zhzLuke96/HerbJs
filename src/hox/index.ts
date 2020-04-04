@@ -1,6 +1,6 @@
 // base
 export { useEffect } from './useEffect';
-export { useState } from './useState';
+export { useState, useValue } from './useState';
 export { useBoolean } from './useBoolean';
 export { useLocalState, useSessionState } from './useStorageState';
 
@@ -19,13 +19,14 @@ export { useRequest } from './useRequest';
 export { useMotion } from './useMotion';
 export { useStyle, css } from './useStyle';
 
+// io
+export { useMouse } from './useMouse';
+
 // global
 export { useWindowSize } from './useWindowSize';
 export { useResponsive } from './useResponsive';
 
 // lib
 export { useStateMachine } from './useStateMachine';
-
-export { useHashRouter } from './useHashRouter';
 
 export { useEmitter } from './useEmitter';

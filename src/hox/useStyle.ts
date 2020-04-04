@@ -1,4 +1,4 @@
-import { UniqueId } from '../common';
+import { UniqueId } from './common';
 
 const cssReg = /([^ :]+?) ?: ?([^;]+?);/g;
 export const css = (text: TemplateStringsArray, ...values: any[]) => {

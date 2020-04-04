@@ -1,4 +1,4 @@
-import { isDef, isDefAll, isUnDef } from '../common';
+import { isDef } from './common';
 import { effect as Effect, reactive } from '../reactive/reactivity';
 import { useState } from './useState';
 import { useWindowSize } from './useWindowSize';
@@ -13,13 +13,13 @@ interface ResponsiveOptions {
 }
 
 const sizeInclude = (a: SizeType, b: SizeType) => {
-    if (isDefAll(a.w, a.h, b.w, b.h)) {
+    if (isDef(a.w, a.h, b.w, b.h)) {
         return a.w - b.w + a.h - b.h;
     }
-    if (isDefAll(a.w, b.w)) {
+    if (isDef(a.w, b.w)) {
         return a.w - b.w;
     }
-    if (isDefAll(a.h, b.h)) {
+    if (isDef(a.h, b.h)) {
         return a.h - b.h;
     }
     return 0;

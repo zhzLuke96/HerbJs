@@ -1,12 +1,9 @@
-import { excludeKeysObj, GetValue, isDef, isUnDefAll } from '../common';
+import { excludeKeysObj } from './common';
 import { useEffect } from '../hox/index';
 import { useEventListener } from '../hox/useEventListener';
-import { useHover } from '../hox/useHover';
-import { useMotion } from '../hox/useMotion';
-import { StateType, useState } from '../hox/useState';
-import { StyleOptions, useStyle } from '../hox/useStyle';
+import { useStyle } from '../hox/useStyle';
 import { html } from '../index';
-import { Icon } from './icon';
+import { GetValue } from '../hox/common'
 
 const InputStyle = {
     'box-sizing': 'border-box',
@@ -112,17 +109,17 @@ export const Input = (props: InputProps) => {
     return html`
         <div
             ref=${[
-                inputStyleRef,
-                inputFocusStyle,
-                inputDisabledStyle,
-                elem => elem.addEventListener('click', () => innerRef && innerRef.focus()),
-            ]}
+            inputStyleRef,
+            inputFocusStyle,
+            inputDisabledStyle,
+            elem => elem.addEventListener('click', () => innerRef && innerRef.focus()),
+        ]}
             ${{ style: (props as any).style }}
         >
             ${() =>
-                !prefix
-                    ? ''
-                    : html`
+            !prefix
+                ? ''
+                : html`
                           <span class="input-group-prefix">${prefix}</span>
                       `}
             <input
@@ -130,9 +127,9 @@ export const Input = (props: InputProps) => {
                 ${excludeKeysObj(props, ['size', 'style', 'prefix', 'suffix'])}
             />
             ${() =>
-                !suffix
-                    ? ''
-                    : html`
+            !suffix
+                ? ''
+                : html`
                           <span class="input-group-suffix">${suffix}</span>
                       `}
         </div>

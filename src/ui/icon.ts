@@ -1,5 +1,4 @@
-import { excludeKeysObj, isIncluded, isUnDefAll } from '../common';
-import { StyleOptions, useStyle } from '../hox/useStyle';
+import { excludeKeysObj, isIncluded } from './common';
 import { html } from '../index';
 
 interface IconProps {

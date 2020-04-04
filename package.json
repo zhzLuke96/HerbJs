@@ -7,6 +7,7 @@
   "unpkg": "dist/taco.min.js",
   "scripts": {
     "build": "cross-env NODE_ENV=production webpack --mode=production",
+    "analyze": "cross-env NODE_ENV=production ANALYZE_MODE=on webpack --mode=production",
     "build:w": "cross-env NODE_ENV=production webpack --watch --mode=production",
     "dev": "cross-env NODE_ENV=development webpack --mode=development",
     "dev:w": "cross-env NODE_ENV=development webpack --watch --mode=development",
@@ -32,6 +33,7 @@
     "tslint": "^5.20.1",
     "typescript": "^3.7.2",
     "webpack": "^4.41.2",
+    "webpack-bundle-analyzer": "^3.6.1",
     "webpack-cli": "^3.3.10"
   },
   "dependencies": {}

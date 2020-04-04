@@ -1,4 +1,3 @@
-import { UniqueId } from '../common';
 import { baseHandler } from './basehandler';
 import { nextTick } from './nxtTick';
 

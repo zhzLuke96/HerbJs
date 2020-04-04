@@ -1,5 +1,3 @@
-import { isState, StateType } from './hox/useState';
-
 export const __DEV__ = false;
 export const __IE__DEV__ = false;
 
@@ -123,42 +121,10 @@ const UniqueIdTemplate = 'xxxxxxxx-xxxx';
 export const UniqueId = () =>
     UniqueIdTemplate.replace(/[xy]/g, c => ((Math.random() * 16) | 0).toString(16));
 
-const IncludedCache = new Map<string, boolean>();
-
-export const isIncluded = (name: string) => {
-    if (IncludedCache.has(name)) {
-        return true;
-    }
-    const js = /js$/i.test(name);
-    const es = Array.from(document.getElementsByTagName(js ? 'script' : 'link'));
-    for (const node of es) {
-        if (node[js ? 'src' : 'href'].indexOf(name) !== -1) {
-            IncludedCache.set(name, true);
-            return true;
-        }
-    }
-    return false;
-};
-
 export function flatten(arr: any[]) {
     return arr.reduce((prev, cur) => {
         return prev.concat(Array.isArray(cur) ? flatten(cur) : cur);
     }, []);
-}
-
-// 逻辑是没问题，但是为了应付类型检查，很不优雅...
-export function GetValue<T>(x: T | StateType<T>): T {
-    if (x instanceof Function) {
-        return GetValue(getFuncVal(x));
-    }
-    if (typeof x !== 'object') {
-        return x;
-    }
-    x = x as StateType<T>;
-    if (isState(x)) {
-        return GetValue(x.value);
-    }
-    return (x as unknown) as T;
 }
 
 type func = (...arg: any[]) => any;
@@ -166,28 +132,3 @@ export const FuncType = (fn: func): string => (fn ? fn.constructor.name : '');
 export const isAsyncFunction = (f: func) => FuncType(f) === 'AsyncFunction';
 export const isGeneratorFunction = (f: func) => FuncType(f) === 'GeneratorFunction';
 export const isAsyncGeneratorFunction = (f: func) => FuncType(f) === 'AsyncGeneratorFunction';
-
-export const excludeKeysObj = (obj: object, keys: string[]) => {
-    const ret = {};
-    Object.keys(obj)
-        .filter(key => !keys.includes(key))
-        .forEach(key => (ret[key] = obj[key]));
-    return ret;
-};
-
-export const includeKeysObj = (obj: object, keys: string[]) =>
-    excludeKeysObj(
-        obj,
-        Object.keys(obj).filter(key => !keys.includes(key)),
-    );
-
-const MAX_GET_DEPTH = 20;
-export const getFuncVal = (fn, depth = 0) => {
-    if (depth >= MAX_GET_DEPTH) {
-        return fn;
-    }
-    if (fn instanceof Function) {
-        return getFuncVal(fn(), depth + 1);
-    }
-    return fn;
-};

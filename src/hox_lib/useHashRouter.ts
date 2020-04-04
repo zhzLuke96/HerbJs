@@ -1,6 +1,6 @@
 import { html } from '../index_core';
 import { reactive } from '../reactive/reactivity';
-import { useEffect } from './useEffect';
+import { useEffect } from '../hox/useEffect';
 
 interface RouterRoutes {
     [key: string]: (arg: { pathName: string; params?: { [key: string]: string } }) => any;

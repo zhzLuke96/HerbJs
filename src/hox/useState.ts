@@ -1,5 +1,6 @@
 import { isDef, isDefAll } from '../common';
 import { reactive } from '../reactive/reactivity';
+import { useEffect } from './useEffect';
 
 export interface StateType<T> {
     value: T;
@@ -10,7 +11,7 @@ export interface StateType<T> {
 export const isState = o =>
     isDef(o) && isDefAll([o.value, o.val, o.v]) && o.value === o.val && o.value === o.v;
 
-export function useState<T>(initValue: T): StateType<T> {
+export const useState = <T>(initValue: T): StateType<T> => {
     const ret = Object.create(null);
     let value = initValue;
     function set(val: T) {
@@ -40,3 +41,13 @@ export function useState<T>(initValue: T): StateType<T> {
     });
     return reactive<{ value: T; v: T; val: T }>(ret);
 }
+
+
+export const useValue = <T>(state: StateType<T>, mapFn: (v: T) => T) => {
+    const value = useState(state.v)
+    useEffect(() => {
+        value.v = mapFn(state.v)
+    })
+    return value
+}
+

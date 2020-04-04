@@ -1,4 +1,5 @@
-import { flatten, getFuncVal, GetValue, isDef, isDOM, isUnDef, UniqueId } from '../common';
+import { flatten, isDef, isDOM, isUnDef, UniqueId } from '../common';
+import { getFuncVal, GetValue } from '../hox/common'
 import { isState } from '../hox/useState';
 import { effect } from '../reactive/reactivity';
 import { NewFrag } from './frag';

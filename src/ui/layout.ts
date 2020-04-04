@@ -1,4 +1,3 @@
-import { isUnDefAll } from '../common';
 import { StyleOptions, useStyle } from '../hox/useStyle';
 import { html } from '../index';
 
@@ -40,8 +39,8 @@ const ColStyle = (span: number, start: number) =>
         },
         start
             ? {
-                  'grid-column-start': start,
-              }
+                'grid-column-start': start,
+            }
             : {},
     );
 
