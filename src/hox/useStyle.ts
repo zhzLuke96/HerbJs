@@ -1,6 +1,6 @@
 import { UniqueId } from './common';
 
-const cssReg = /([^ :]+?) ?: ?([^;]+?);/g;
+const cssReg = /([^ :]+?) ?: ?([^;]+?)(;|$)/g;
 export const css = (text: TemplateStringsArray, ...values: any[]) => {
     let cssText = ''
     for (const idx in text) {
