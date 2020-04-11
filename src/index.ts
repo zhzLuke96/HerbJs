@@ -3,6 +3,7 @@ export { nextTick } from './reactive/nxtTick';
 export {
     useState,
     useValue,
+    Stateify,
     useRequest,
     useBoolean,
     useHover,
@@ -23,9 +24,7 @@ export {
     useSessionState,
     useMouse,
 } from './hox/index';
-export {
-    useHashRouter,
-} from './hox_lib/useHashRouter'
+export { useHashRouter } from './hox_lib/useHashRouter';
 export { Card, Button, Button as Btn, Row, Col, Input, Textarea, Icon } from './ui/index';
 export { html } from './html/index';
 export { GetValue } from './hox/common';

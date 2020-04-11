@@ -1,6 +1,6 @@
 // base
 export { useEffect } from './useEffect';
-export { useState, useValue } from './useState';
+export { useState, useValue, Stateify } from './useState';
 export { useBoolean } from './useBoolean';
 export { useLocalState, useSessionState } from './useStorageState';
 

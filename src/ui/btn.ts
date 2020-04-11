@@ -1,12 +1,12 @@
-import { excludeKeysObj } from './common';
+import { GetValue } from '../hox/common';
 import { useEffect } from '../hox/useEffect';
 import { useEventListener } from '../hox/useEventListener';
 import { useMotion } from '../hox/useMotion';
 import { StateType, useState } from '../hox/useState';
 import { StyleOptions, useStyle } from '../hox/useStyle';
 import { html } from '../index';
+import { excludeKeysObj } from './common';
 import { Icon } from './icon';
-import { GetValue } from '../hox/common'
 
 const ButtonStyle = {
     'line-height': '1.499',
@@ -270,32 +270,32 @@ export const Button = (props: ButtonProps = {}) => {
     return html`
         <button
             ${excludeKeysObj(props, [
-        'type',
-        'text',
-        'style',
-        'shape',
-        'icon',
-        'ref',
-        'disabled',
-        'loading',
-    ])}
+                'type',
+                'text',
+                'style',
+                'shape',
+                'icon',
+                'ref',
+                'disabled',
+                'loading',
+            ])}
             type="button"
             ref=${[styleRef, propsStyleRef, motionRef, mouseupRef, ref, disabledStyleRef]}
             disabled=${() => GetValue(disabled)}
             class=${() => (GetValue(loading) ? 'loading' : '')}
         >
             ${() =>
-            !GetValue(loading)
-                ? ''
-                : Icon({
-                    name: 'donut_large',
-                    style: { animation: 'loadingCircle 1s infinite linear' },
-                })}
+                !GetValue(loading)
+                    ? ''
+                    : Icon({
+                          name: 'donut_large',
+                          style: { animation: 'loadingCircle 1s infinite linear' },
+                      })}
             ${() => (!icon || GetValue(loading) ? '' : Icon({ name: icon }))}
             ${() =>
-            !text
-                ? ''
-                : html`
+                !text
+                    ? ''
+                    : html`
                           <span>${text}</span>
                       `}
         </button>

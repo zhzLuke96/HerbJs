@@ -1,11 +1,12 @@
 import { UniqueId } from './common';
 
+const str = x => (x && x.toString && x.toString()) || '';
 const cssReg = /([^ :]+?) ?: ?([^;]+?)(;|$)/g;
 export const css = (text: TemplateStringsArray, ...values: any[]) => {
-    let cssText = ''
+    let cssText = '';
     for (const idx in text) {
         if (text.hasOwnProperty(idx)) {
-            cssText += `${text[idx] || ''}${values[idx] || ''}`
+            cssText += `${str(text[idx])}${str(values[idx])}`;
         }
     }
     const ret = {};

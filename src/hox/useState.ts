@@ -1,5 +1,5 @@
 import { isDef, isDefAll } from '../common';
-import { reactive } from '../reactive/reactivity';
+import { effect, reactive } from '../reactive/reactivity';
 import { useEffect } from './useEffect';
 
 export interface StateType<T> {
@@ -8,8 +8,8 @@ export interface StateType<T> {
     v: T;
 }
 
-export const isState = o =>
-    isDef(o) && isDefAll([o.value, o.val, o.v]) && o.value === o.val && o.value === o.v;
+const __IS_STATE__ = Symbol('__IS_STATE__');
+export const isState = o => o[__IS_STATE__];
 
 export const useState = <T>(initValue: T): StateType<T> => {
     const ret = Object.create(null);
@@ -39,15 +39,58 @@ export const useState = <T>(initValue: T): StateType<T> => {
             get,
         },
     });
+    ret[__IS_STATE__] = true;
     return reactive<{ value: T; v: T; val: T }>(ret);
-}
+};
 
+export const Stateify = <T>(value: T | StateType<T>) => {
+    if (isState(value)) {
+        return value as StateType<T>;
+    }
+    return useState(value as T);
+};
 
-export const useValue = <T>(state: StateType<T>, mapFn: (v: T) => T) => {
-    const value = useState(state.v)
-    useEffect(() => {
-        value.v = mapFn(state.v)
-    })
-    return value
-}
+type MapFn = <T>(_: T) => T;
+const identity: MapFn = x => x;
 
+const mkThrottleLink = (interval: number) => {
+    let timer = 0;
+    return <T>(v: T) =>
+        new Promise<T>((resolve, reject) => {
+            const now = Date.now();
+            if (now - timer < interval) {
+                reject();
+                return;
+            }
+            timer = now;
+            resolve(v);
+        });
+};
+
+export const useValue = <T>(
+    state: StateType<T>,
+    outFn = identity,
+    inFn = identity,
+    interval = -1,
+) => {
+    const value = useState(outFn(state.v));
+    const outLink = mkThrottleLink(interval);
+    const inLink = mkThrottleLink(interval);
+    const setState = (v: T) => state.v = v;
+    const setValue = (v: T) => value.v = v;
+    effect(() =>
+        outLink(state.v)
+            .then(outFn)
+            .then(setValue)
+            .catch(identity),
+    );
+    effect(() =>
+        inLink(value.v)
+            .then(inFn)
+            .then(setState)
+            .then(outFn)
+            .then(setValue)
+            .catch(identity),
+    );
+    return value;
+};

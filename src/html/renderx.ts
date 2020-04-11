@@ -1,5 +1,5 @@
 import { flatten, isDef, isDOM, isUnDef, UniqueId } from '../common';
-import { getFuncVal, GetValue } from '../hox/common'
+import { getFuncVal, GetValue } from '../hox/common';
 import { isState } from '../hox/useState';
 import { effect } from '../reactive/reactivity';
 import { NewFrag } from './frag';
@@ -111,7 +111,7 @@ function createFragByText(
             case 'object':
                 if (value === null) {
                     appendDangerTextChild(container, '&nbsp;');
-                    return
+                    return;
                 }
                 if (isState(value)) {
                     const stateTextNode = document.createTextNode('');
@@ -215,7 +215,7 @@ function createSVGElem(vdom: VDom, vmap: ValueMap) {
 
     for (const attr of vdom.attrs) {
         const { key, val } = attr;
-        svg.setAttribute(key, val);
+        setElemAttr(svg, key, val, vmap, depFuncs);
     }
 
     return { elem: svg, dFns: depFuncs };
@@ -249,7 +249,7 @@ function createElem(vdom: VDom, vmap: ValueMap) {
 }
 
 function setElemAttr(
-    elem: HTMLElement,
+    elem: Element,
     key: string,
     val: any,
     vmap: ValueMap,
@@ -351,7 +351,7 @@ function setElemRef(elem, refs: any) {
     }
 }
 
-function attrSetter(elem: HTMLElement, key: string, val: any) {
+function attrSetter(elem: Element, key: string, val: any) {
     if (val === undefined) {
         return;
     }
@@ -383,7 +383,7 @@ function attrSetter(elem: HTMLElement, key: string, val: any) {
             for (const csskey in val) {
                 if (val.hasOwnProperty(csskey)) {
                     const cssval = val[csskey];
-                    elem.style[csskey] = cssval;
+                    (elem as HTMLElement).style[csskey] = cssval;
                 }
             }
         } else {
@@ -409,7 +409,7 @@ function attrSetter(elem: HTMLElement, key: string, val: any) {
     }
 
     if (key === 'style') {
-        elem.style.cssText = val;
+        (elem as HTMLElement).style.cssText = val;
         return;
     }
     elem.setAttribute(key, val);

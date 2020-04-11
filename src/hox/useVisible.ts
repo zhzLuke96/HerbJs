@@ -1,5 +1,5 @@
-import { useState } from './useState';
 import { nextTick } from '../reactive/nxtTick';
+import { useState } from './useState';
 
 export const useVisible = <T extends HTMLElement>() => {
     const state = useState(true);
@@ -19,7 +19,7 @@ export const useVisible = <T extends HTMLElement>() => {
                     }
                 });
                 intersectionObserver.observe(elem);
-            })
+            });
         },
     };
 };

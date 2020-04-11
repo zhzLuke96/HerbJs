@@ -1,5 +1,5 @@
-import { excludeKeysObj, isIncluded } from './common';
 import { html } from '../index';
+import { excludeKeysObj, isIncluded } from './common';
 
 interface IconProps {
     name: string;

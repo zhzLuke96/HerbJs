@@ -89,26 +89,27 @@ const mousePositionOffsetPercentage = (checkVisible = true) => {
         visibleRef
     } = useVisible()
     return useValue(mouse, ({
-        screenY,
-        screenX
-    }) => {
-        if (checkVisible && !isVisibility()) {
+            screenY,
+            screenX
+        }) => {
+            if (checkVisible && !isVisibility()) {
+                return {
+                    deltaY: 0,
+                    deltaX: 0
+                }
+            }
+            const {
+                outerHeight,
+                outerWidth
+            } = window
+            const deltaY = (screenY - outerHeight / 2) / outerHeight / 2
+            const deltaX = (screenX - outerWidth / 2) / outerWidth / 2
             return {
-                deltaY: 0,
-                deltaX: 0
+                deltaY,
+                deltaX
             }
         }
-        const {
-            outerHeight,
-            outerWidth
-        } = window
-        const deltaY = (screenY - outerHeight / 2) / outerHeight / 2
-        const deltaX = (screenX - outerWidth / 2) / outerWidth / 2
-        return {
-            deltaY,
-            deltaX
-        }
-    })
+    )
 }
 ```
 

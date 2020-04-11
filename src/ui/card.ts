@@ -1,6 +1,6 @@
-import { excludeKeysObj, isUnDefAll } from './common';
 import { StyleOptions, useStyle } from '../hox/useStyle';
 import { html } from '../index';
+import { excludeKeysObj, isUnDefAll } from './common';
 
 const CardStyle = {
     width: '300px',
@@ -125,17 +125,17 @@ export const Card = (props: CardProps = {}) => {
             ${excludeKeysObj(props, ['title', 'extra', 'actions', 'cover', 'content'])}
         >
             ${() =>
-            !cover
-                ? ''
-                : html`
+                !cover
+                    ? ''
+                    : html`
                           <div class="card-cover">
                               ${() => cover}
                           </div>
                       `}
             ${() =>
-            !title
-                ? ''
-                : html`
+                !title
+                    ? ''
+                    : html`
                           <header class="card-header">
                               <div class="card-title">
                                   ${() => title}
@@ -146,25 +146,25 @@ export const Card = (props: CardProps = {}) => {
                           </header>
                       `}
             ${() =>
-            !content
-                ? ''
-                : html`
+                !content
+                    ? ''
+                    : html`
                           <div class="card-content">
                               ${() => content}
                           </div>
                       `}
             ${() =>
-            !actions
-                ? ''
-                : html`
+                !actions
+                    ? ''
+                    : html`
                           <footer class="card-actions">
                               ${() =>
-                        actions.map(
-                            inner =>
-                                html`
+                                  actions.map(
+                                      inner =>
+                                          html`
                                               <div>${inner}</div>
                                           `,
-                        )}
+                                  )}
                           </footer>
                       `}
         </div>

@@ -1,7 +1,3 @@
-
-
-
-
 export const excludeKeysObj = (obj: object, keys: string[]) => {
     const ret = {};
     Object.keys(obj)
@@ -30,7 +26,6 @@ export function isUnDefAll(arr: any, ...arg: any[]): boolean {
     return arr.length ? arr.reduce((r, o) => r && isUnDef(o), true) : false;
 }
 
-
 const IncludedCache = new Map<string, boolean>();
 
 export const isIncluded = (name: string) => {
@@ -47,4 +42,3 @@ export const isIncluded = (name: string) => {
     }
     return false;
 };
-

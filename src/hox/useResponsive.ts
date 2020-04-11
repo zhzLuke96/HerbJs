@@ -1,5 +1,5 @@
-import { isDef } from './common';
 import { effect as Effect, reactive } from '../reactive/reactivity';
+import { isDef } from './common';
 import { useState } from './useState';
 import { useWindowSize } from './useWindowSize';
 

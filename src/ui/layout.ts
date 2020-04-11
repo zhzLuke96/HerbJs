@@ -39,8 +39,8 @@ const ColStyle = (span: number, start: number) =>
         },
         start
             ? {
-                'grid-column-start': start,
-            }
+                  'grid-column-start': start,
+              }
             : {},
     );
 
