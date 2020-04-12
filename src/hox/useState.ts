@@ -52,6 +52,8 @@ export const Stateify = <T>(value: T | StateType<T>) => {
 
 type MapFn = <T>(_: T) => T;
 const identity: MapFn = x => x;
+const noop: MapFn = x => void 0;
+const intercept = _ => { throw new Error('') }
 
 const mkThrottleLink = (interval: number) => {
     let timer = 0;
@@ -70,7 +72,7 @@ const mkThrottleLink = (interval: number) => {
 export const useValue = <T>(
     state: StateType<T>,
     outFn = identity,
-    inFn = identity,
+    inFn = intercept,
     interval = -1,
 ) => {
     const value = useState(outFn(state.v));
