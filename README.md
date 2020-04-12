@@ -18,6 +18,7 @@
       - [antd-like ui](#antd-like-ui)
       - [light-lib](#light-lib)
 - [TODO](#todo)
+- [tips](#tips)
 - [License](#license)
 
 # Background
@@ -205,6 +206,9 @@ const app = () => {
 - 异步渲染
 - 异步依赖
 - html模板引擎重构 children frag cacher
+
+# tips
+核心是兼容移动端的，但是移动端所有平台均不支持templateString用法，需要babel编译一下template...emmmmm
 
 # License
 GPL-3.0
