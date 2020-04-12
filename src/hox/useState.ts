@@ -9,7 +9,7 @@ export interface StateType<T> {
 }
 
 const __IS_STATE__ = Symbol('__IS_STATE__');
-export const isState = o => o[__IS_STATE__];
+export const isState = o => o && o[__IS_STATE__];
 
 export const useState = <T>(initValue: T): StateType<T> => {
     const ret = Object.create(null);
